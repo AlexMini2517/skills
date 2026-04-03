@@ -1,21 +1,15 @@
 ---
 name: expo-packages-doc-assistant
-description: "Offline Expo documentation assistant with local markdown files covering 58+ Expo SDK packages. Use this skill whenever the user is working on a React Native Expo project and asks about any Expo SDK module (expo-router, expo-notifications, expo-camera, expo-image, expo-secure-store, etc.), EAS Build/Submit/Update, Expo Router navigation patterns, config plugins, app.json/app.config configuration, or needs API reference for any expo-* or common React Native package. Also trigger when the user has Expo-specific build errors, runtime issues, or asks 'how do I do X in Expo'. Prefer this skill over web search for Expo API questions — it has accurate, local documentation. Trigger even when the user doesn't explicitly say 'Expo' but is clearly working in an Expo project (e.g. mentions expo-router, app.json, eas build, etc.). Also trigger for common Expo error messages like 'Invariant Violation', 'Native module cannot be null', or Expo-specific build failures (EAS Build errors, metro bundler issues, prebuild errors). Trigger when the user's workspace contains app.json, app.config.js, or eas.json files, even without explicit Expo mention."
+description: "Offline API reference for Expo and React Native. Trigger when working in an Expo project (workspace contains app.json or eas.json), when the user asks about Expo SDK packages (e.g., expo-router, expo-camera), EAS workflows, config plugins, or encounters Expo/React Native build and runtime errors. Always prefer this over web search."
 ---
-
-# Expo Packages Doc Assistant
-
-You are an offline Expo documentation navigator. Your job is to look up the correct local package docs and use them to inform your work — writing code, fixing bugs, answering questions — with accurate, up-to-date API details.
-
-This is important because Expo's API surface changes frequently across SDK versions. The local docs bundled with this skill reflect the exact version the user is targeting, so they're more reliable than your training data or web search for API specifics (method signatures, prop names, config options).
 
 ## How the local docs are organized
 
 ```
-references/package-index.md   ← lightweight lookup table (read this first)
-packages/<slug>/index.md       ← full docs for each package
-packages/<slug>/<sub>/index.md ← sub-topics (e.g. router/stack/)
-llms-full.md                   ← complete Expo docs dump (1.8 MB — use as last resort)
+packages/<slug>.mdx                           ← full docs for most packages
+packages/<slug>/index.mdx                     ← root docs for complex packages (e.g. router/)
+packages/<slug>/<sub-topic>.mdx               ← sub-topics (e.g. router/stack.mdx)
+packages/<slug>/<sub-topic>/<component>.mdx   ← deeply nested topics (e.g. ui/jetpack-compose/button.mdx)
 ```
 
 All paths are relative to this skill's directory.
@@ -24,36 +18,12 @@ All paths are relative to this skill's directory.
 
 When the user asks something related to Expo:
 
-1. **Read `references/package-index.md`** — this is a compact table (~100 rows) that maps user terms, npm package names, and common aliases to local folder slugs. It includes a **Size** column (S/M/L) that tells you how large each doc file is — use it to decide your reading strategy.
+1. **Identify the matching package slug(s)** — match the user's words to the corresponding package in the `packages/` directory. If the request spans multiple packages (e.g. "pick an image and upload it"), identify all relevant slugs.
+2. **Read the package doc:** Start by checking `packages/<slug>.mdx` (or `packages/<slug>/index.mdx`). Note that some files are quite large, so if a file is large, read the first ~200 lines to get the overview and API summary, then jump to the specific sections relevant to the user's question.
+3. **Read sub-pages if needed** — some complex packages like `router/` or `ui/` have sub-folders with specialized docs (including deeply nested ones like `ui/jetpack-compose/`). Only read sub-pages when the user's question specifically requires that level of detail.
+4. **General topics** — For topics like `app.json`, `eas.json`, Metro bundler configuration, etc., either search for a related `.mdx` file in the `packages/` directory, use `grep_search`, or rely on your general knowledge.
 
-2. **Identify the matching package slug(s)** — match the user's words against the "User terms / aliases" column. If the request spans multiple packages (e.g. "pick an image and upload it"), identify all relevant slugs.
-
-3. **Read the package doc, adapting to its size:**
-   - **Size S** (small, <5KB): Read the whole `packages/<slug>/index.md` — it's compact.
-   - **Size M** (medium, 5–30KB): Read the whole file — it's manageable and you'll likely need the full context.
-   - **Size L** (large, >30KB): Read the first ~200 lines to get the overview, installation, and API summary. Then jump to the specific sections relevant to the user's question. These files are too large to justify loading entirely for a single question.
-
-4. **Read sub-pages if needed** — some packages have sub-folders with specialized docs. The package-index.md table has a "Sub-pages" column that lists them. For example, `router/` has sub-pages for `stack/`, `link/`, `native-tabs/`. Only read sub-pages when the user's question specifically requires that level of detail.
-
-5. **Fallback to `llms-full.md`** — only if the topic isn't covered by any package folder. See the next section for topics that live exclusively in this file.
-
-## Topics only in llms-full.md
-
-The `llms-full.md` file is 43k lines and expensive to load. Only use it for topics that have no dedicated package folder:
-
-- `app.json` / `app.config.js` / `app.config.ts` full schema
-- `eas.json` configuration (EAS Build, EAS Submit)
-- EAS Update workflow and channels
-- Environment variables (`.env`, `EXPO_PUBLIC_*`)
-- Expo CLI commands (`npx expo start`, `npx expo prebuild`, `npx expo export`, etc.)
-- Metro bundler configuration (`metro.config.js`)
-- Project structure conventions (`app/` directory, `assets/`, etc.)
-- Bare workflow vs managed workflow differences
-- Continuous Native Generation (CNG)
-- Over-the-air updates strategy and deployment patterns
-- Expo Go limitations and compatibility
-
-For anything tied to a specific package (notifications, camera, router, etc.), the `packages/<slug>/index.md` file is the right source — it's more focused and won't flood your context.
+For anything tied to a specific package (notifications, camera, router, etc.), the `packages/` files are the primary source.
 
 ## Decision trees for common scenarios
 
@@ -103,11 +73,10 @@ When referencing information from the docs, don't just dump the docs at the user
 
 ## Package slug normalization
 
-When the user mentions a package name, normalize it to a folder slug:
+When the user mentions a package name, normalize it to find the file:
 
 1. Strip prefixes: `expo-`, `@expo/`, `react-native-`, `@react-native-community/`, `@shopify/`
 2. Convert spaces and underscores to hyphens
-3. Check the alias table in `references/package-index.md` — some slugs differ from what you'd expect.
 
 > **⚠️ Watch out — these slugs drop the hyphen:**
 > `secure-store` → `securestore` · `image-picker` → `imagepicker` · `image-manipulator` → `imagemanipulator` · `file-system` → `filesystem` · `web-browser` → `webbrowser`
@@ -115,14 +84,14 @@ When the user mentions a package name, normalize it to a folder slug:
 > **These rename entirely:**
 > `av` → `audio` · `blur` → `blur-view`
 
-4. Verify the slug exists in the package-index table before trying to read the folder.
+3. Verify the slug exists in the `packages/` directory before trying to read the file.
 
 ## If a package isn't found
 
-If the user asks about a package that doesn't have a local docs folder:
-- Check the package-index for close matches (suggest up to 3 candidates)
-- For third-party packages not in the Expo ecosystem, say so — don't pretend the local docs cover them
-- The `third-party-overview` folder has a summary of commonly used community packages
+If the user asks about a package that doesn't have a local docs file:
+- Check the `packages/` directory for any close matches (e.g., related terms).
+- For third-party packages not in the Expo ecosystem, say so — don't pretend the local docs cover them.
+- `packages/third-party-overview.mdx` has a summary of commonly used community packages.
 
 ## Coexistence with other skills
 
