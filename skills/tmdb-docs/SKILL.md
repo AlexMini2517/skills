@@ -1,0 +1,110 @@
+---
+name: tmdb-docs
+description: >
+  Reference skill for the TMDB (The Movie Database) API. Use this skill
+  WHENEVER the user asks to: integrate with TMDB, call TMDB endpoints, look up
+  movies/TV/persons via API, handle authentication with TMDB, search or discover
+  content, work with TMDB collections, genres, certifications, trending,
+  watch providers, or any other TMDB-related development task. Also trigger when
+  the user shows a TMDB API error, asks how a specific TMDB endpoint works, or
+  asks what parameters are available. Do NOT load docs speculatively — use the
+  routing table below to load ONLY the file(s) relevant to the current task.
+---
+
+# TMDB API Documentation Skill
+
+## How to use this skill
+
+1. Read the user's request and identify which TMDB domain(s) it touches.
+2. Use the **routing table** below to find the correct reference file(s).
+3. Load **only** those files using the `view` tool from `references/`.
+4. Answer using the loaded content. Never guess endpoint signatures from memory.
+
+> **Token discipline**: Load the minimum number of files needed. If the task is
+> clearly scoped (e.g., "search for a movie"), load only `23-search.md`.
+> Load `00-intro.md` only if you need base URL, auth overview, or API-wide metadata.
+
+---
+
+## Routing Table
+
+| Topic / keywords | File to load |
+|---|---|
+| Base URL, versioning, API overview, rate limits, status codes | `00-intro.md` |
+| Account, favorites, watchlist, rated items, user account | `01-account.md` |
+| Alternative titles, alternative names | `02-alternative.md` |
+| Auth, API key, session, login, token, guest session, v3 auth | `03-authentication.md` |
+| Certification (single resource) | `04-certification.md` |
+| Certifications list (all countries/ratings) | `05-certifications.md` |
+| Changes, recently changed movies/TV/people | `06-changes.md` |
+| Collection, movie collection, belongs_to_collection | `07-collection.md` |
+| Company, production company | `08-company.md` |
+| Configuration, image base URL, image sizes, languages, countries, jobs | `09-configuration.md` |
+| Credit, cast credit, crew credit | `10-credit.md` |
+| Details (generic endpoint details or combined) | `11-details.md` |
+| Discover, filter movies or TV by params | `12-discover.md` |
+| Find by external ID (IMDb, TVDB, Freebase, etc.) | `13-find.md` |
+| Genre, genre list | `14-genre.md` |
+| Guest session, guest rated | `15-guest.md` |
+| Keyword | `16-keyword.md` |
+| List (single list resource) | `17-list.md` |
+| Lists (multiple lists, list management) | `18-lists.md` |
+| Movie, movie details, movie endpoints | `19-movie.md` |
+| Network, TV network | `20-network.md` |
+| Person, people, actor, director, biography | `21-person.md` |
+| Review | `22-review.md` |
+| Search (movies, TV, people, multi, company, keyword, collection) | `23-search.md` |
+| Translations | `24-translations.md` |
+| Trending (daily, weekly) | `25-trending.md` |
+| TV show, TV series, TV season, TV episode | `26-tv.md` |
+| Watch providers, streaming availability, flatrate, buy, rent | `27-watch.md` |
+
+---
+
+## Common multi-file tasks
+
+Some tasks span multiple domains — load all relevant files:
+
+- **"Search and get details"** ? `23-search.md` + `19-movie.md` or `26-tv.md`
+- **"Discover with watch providers"** ? `12-discover.md` + `27-watch.md`
+- **"Authenticate and call endpoints"** ? `03-authentication.md` + domain file
+- **"Build image URLs"** ? `09-configuration.md`
+- **"Get trending and then details"** ? `25-trending.md` + `19-movie.md` or `26-tv.md`
+
+---
+
+## Reference files location
+
+All documentation is in `references/` relative to this skill:
+
+```
+references/
+  00-intro.md
+  01-account.md
+  02-alternative.md
+  03-authentication.md
+  04-certification.md
+  05-certifications.md
+  06-changes.md
+  07-collection.md
+  08-company.md
+  09-configuration.md
+  10-credit.md
+  11-details.md
+  12-discover.md
+  13-find.md
+  14-genre.md
+  15-guest.md
+  16-keyword.md
+  17-list.md
+  18-lists.md
+  19-movie.md
+  20-network.md
+  21-person.md
+  22-review.md
+  23-search.md
+  24-translations.md
+  25-trending.md
+  26-tv.md
+  27-watch.md
+```
