@@ -1,15 +1,17 @@
 ---
-name: expo-packages-doc-assistant
-description: "Offline API reference for Expo and React Native. Trigger when working in an Expo project (workspace contains app.json or eas.json), when the user asks about Expo SDK packages (e.g., expo-router, expo-camera), EAS workflows, config plugins, or encounters Expo/React Native build and runtime errors. Always prefer this over web search."
+name: expo-sdk-docs
+description: "Offline Expo SDK package reference from local packages/*.mdx docs. Use when working in an Expo project (app.json, app.config.*, eas.json, Expo package dependencies), when the user asks about Expo SDK APIs/packages such as expo-router, expo-camera, expo-notifications, @expo/ui, config plugins, permissions, or Expo/React Native errors tied to an Expo package. Prefer these local docs before web search; use other skills for general React Native architecture, performance, or non-Expo libraries."
 ---
 
 ## How the local docs are organized
 
+Most docs are single files. Some Expo SDK versions may also contain package folders; the extractor mirrors whatever `.mdx` files GitHub exposes.
+
 ```
-packages/<slug>.mdx                           ← full docs for most packages
-packages/<slug>/index.mdx                     ← root docs for complex packages (e.g. router/)
-packages/<slug>/<sub-topic>.mdx               ← sub-topics (e.g. router/stack.mdx)
-packages/<slug>/<sub-topic>/<component>.mdx   ← deeply nested topics (e.g. ui/jetpack-compose/button.mdx)
+packages/<slug>.mdx
+packages/<slug>/index.mdx
+packages/<slug>/<topic>.mdx
+packages/<slug>/<topic>/<nested-topic>.mdx
 ```
 
 All paths are relative to this skill's directory.
@@ -20,8 +22,8 @@ When the user asks something related to Expo:
 
 1. **Identify the matching package slug(s)** — match the user's words to the corresponding package in the `packages/` directory. If the request spans multiple packages (e.g. "pick an image and upload it"), identify all relevant slugs.
 2. **Read the package doc:** Start by checking `packages/<slug>.mdx` (or `packages/<slug>/index.mdx`). Note that some files are quite large, so if a file is large, read the first ~200 lines to get the overview and API summary, then jump to the specific sections relevant to the user's question.
-3. **Read sub-pages if needed** — some complex packages like `router/` or `ui/` have sub-folders with specialized docs (including deeply nested ones like `ui/jetpack-compose/`). Only read sub-pages when the user's question specifically requires that level of detail.
-4. **General topics** — For topics like `app.json`, `eas.json`, Metro bundler configuration, etc., either search for a related `.mdx` file in the `packages/` directory, use `grep_search`, or rely on your general knowledge.
+3. **Read sub-pages if needed** — some packages have nested docs listed above. Only read sub-pages when the user's question specifically requires that level of detail.
+4. **General topics** — For topics like `app.json`, `eas.json`, Metro bundler configuration, etc., search `packages/` with `rg` before relying on general knowledge.
 
 For anything tied to a specific package (notifications, camera, router, etc.), the `packages/` files are the primary source.
 
@@ -95,4 +97,4 @@ If the user asks about a package that doesn't have a local docs file:
 
 ## Coexistence with other skills
 
-This skill focuses on **Expo SDK API reference and usage**. If the user's question is about general React Native performance patterns, animation best practices, or architectural decisions not specific to an Expo API, other skills (like `vercel-react-native-skills`) may be more appropriate. But if the question involves a specific Expo package or Expo-specific feature, this skill takes priority.
+This skill focuses on **Expo SDK API reference and usage**. If the user's question is about general React Native performance patterns, animation best practices, or architectural decisions not specific to an Expo API, another React Native or frontend skill may be more appropriate. But if the question involves a specific Expo package or Expo-specific feature, this skill takes priority.

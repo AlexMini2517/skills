@@ -1,7 +1,7 @@
 ---
 title: Maps
 description: A library that provides access to Google Maps on Android and Apple Maps on iOS.
-sourceCodeUrl: 'https://github.com/expo/expo/tree/main/packages/expo-maps'
+sourceCodeUrl: 'https://github.com/expo/expo/tree/sdk-54/packages/expo-maps'
 packageName: 'expo-maps'
 platforms: ['ios', 'android']
 iconUrl: '/static/images/packages/expo-maps.png'
@@ -19,7 +19,7 @@ import { Tabs, Tab } from '~/ui/components/Tabs';
 import { PlatformTag } from '~/ui/components/Tag/PlatformTag';
 import { VideoBoxLink } from '~/ui/components/VideoBoxLink';
 
-> **important** **This library is currently in [alpha](/more/release-statuses/#alpha) and will frequently experience breaking changes.** It is not available in the Expo Go app &ndash; use [development builds](/develop/development-builds/introduction/) to try it out.
+> **important** **This library is currently in alpha and will frequently experience breaking changes.** It is not available in the Expo Go app &ndash; use [development builds](/develop/development-builds/introduction/) to try it out.
 
 ## Installation
 
@@ -62,7 +62,7 @@ Expo Maps provides access to the platform native map APIs on Android and iOS.
 <Tab label="For Google Play Store">
 
 - **If you are deploying your app to the Google Play Store**, you'll need to [upload your app binary to Google Play console](/submit/android/) at least once. This is required for Google to generate your app signing credentials.
-- Go to the **[Google Play Console](https://play.google.com/console) > (your app) > Release > Setup > App integrity > App Signing**.
+- Go to the **[Google Play Console](https://play.google.com/console) > (your app) > Test and release > App integrity > Play app signing > Settings > App signing key certificate**.
 - Copy the value of **SHA-1 certificate fingerprint**.
 
 </Tab>
@@ -165,7 +165,7 @@ export default function App() {
 ```js
 import { AppleMaps, GoogleMaps } from 'expo-maps';
 
-// AppleMaps.View and GoogleMaps.View are the React components
+// ApplesMaps.View and GoogleMaps.View are the React components
 ```
 
 <APISection packageName="expo-maps" apiName="Maps" />

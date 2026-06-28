@@ -1,7 +1,7 @@
 ---
 title: ImagePicker
 description: A library that provides access to the system's UI for selecting images and videos from the phone's library or taking a photo with the camera.
-sourceCodeUrl: 'https://github.com/expo/expo/tree/main/packages/expo-image-picker'
+sourceCodeUrl: 'https://github.com/expo/expo/tree/sdk-54/packages/expo-image-picker'
 packageName: 'expo-image-picker'
 iconUrl: '/static/images/packages/expo-image-picker.png'
 platforms: ['android', 'ios', 'web', 'expo-go']
@@ -43,7 +43,6 @@ By default `expo-image-picker` will add `RECORD_AUDIO` permission on Android. Yo
 
 <ConfigPluginExample>
 
-{/* prettier-ignore */}
 ```json app.json
 {
   "expo": {
@@ -51,15 +50,7 @@ By default `expo-image-picker` will add `RECORD_AUDIO` permission on Android. Yo
       [
         "expo-image-picker",
         {
-          "photosPermission": "The app accesses your photos to let you share them with your friends.",
-          "colors": {
-            "cropToolbarColor": "#000000"
-          },
-          "dark": {
-            "colors": {
-              "cropToolbarColor": "#000000"
-            }
-          }
+          "photosPermission": "The app accesses your photos to let you share them with your friends."
         }
       ]
     ]
@@ -90,51 +81,6 @@ By default `expo-image-picker` will add `RECORD_AUDIO` permission on Android. Yo
       description:
         'A string to set the `NSMicrophoneUsageDescription` permission message. If value `false` is provided then `RECORD_AUDIO` permission will be blocked on Android.',
       default: '"Allow $(PRODUCT_NAME) to access your microphone"',
-    },
-    {
-      name: 'colors',
-      platform: 'android',
-      description:
-        'An object containing color properties for customizing the image picker crop UI in light mode.',
-      default: 'undefined',
-    },
-    {
-      name: 'colors.cropToolbarColor',
-      platform: 'android',
-      description: 'A hex color string for the crop toolbar background color.',
-      default: '#00000000',
-    },
-    {
-      name: 'colors.cropToolbarIconColor',
-      platform: 'android',
-      description: 'A hex color string for the crop toolbar icon color.',
-      default: '#ffffff',
-    },
-    {
-      name: 'colors.cropToolbarActionTextColor',
-      platform: 'android',
-      description: 'A hex color string for the crop toolbar action text color.',
-      default: '#ffffff',
-    },
-    {
-      name: 'colors.cropBackButtonIconColor',
-      platform: 'android',
-      description: 'A hex color string for the crop toolbar back button icon color.',
-      default: '#ffffff',
-    },
-    {
-      name: 'colors.cropBackgroundColor',
-      platform: 'android',
-      description: 'A hex color string for the crop screen background color.',
-      default: '#ffffff',
-    },
-    {
-      name: 'dark.colors',
-      platform: 'android',
-      description:
-        'An object containing color properties for customizing the image picker crop UI in dark mode.',
-      default:
-        '{ cropToolbarColor: "#00000000", cropToolbarIconColor: "#ffffff", cropToolbarActionTextColor: "#ffffff", cropBackButtonIconColor: "#ffffff", cropBackgroundColor: "#000000"  }',
     },
   ]}
 />

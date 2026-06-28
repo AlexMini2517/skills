@@ -1,7 +1,7 @@
 ---
 title: BackgroundTask
 description: A library that provides an API for running background tasks.
-sourceCodeUrl: 'https://github.com/expo/expo/tree/main/packages/expo-background-task'
+sourceCodeUrl: 'https://github.com/expo/expo/tree/sdk-54/packages/expo-background-task'
 packageName: 'expo-background-task'
 platforms: ['android', 'ios', 'tvos', 'expo-go']
 hasVideoLink: true
@@ -65,28 +65,22 @@ The [`Background Tasks`](https://developer.apple.com/documentation/backgroundtas
 
 <APIInstallSection />
 
-## Configuration in app config&ensp;<PlatformTags platforms={['ios']} />
+## Configuration&ensp;<PlatformTags platforms={['ios']} />
 
-To be able to run background tasks on iOS, you need to add the following to your app's **Info.plist** file:
+To be able to run background tasks on iOS, you need to add the `processing` value to the `UIBackgroundModes` array in your app's **Info.plist** file. This is required for background fetch to work properly.
 
-- The `processing` value to the `UIBackgroundModes` array. This enables the background processing capability.
-- The `BGTaskSchedulerPermittedIdentifiers` array with the `com.expo.modules.backgroundtask.processing` identifier. This registers the permitted background task identifier.
+**If you're using [CNG](/workflow/continuous-native-generation/)**, the required `UIBackgroundModes` configuration will be applied automatically by prebuild.
 
-**If you're using [CNG](/workflow/continuous-native-generation/)**, both the required `UIBackgroundModes` and `BGTaskSchedulerPermittedIdentifiers` configurations will be applied automatically by prebuild.
-
-<Collapsible summary="Configure Info.plist manually on iOS">
+<Collapsible summary="Configure UIBackgroundModes manually on iOS">
 
 If you're not using Continuous Native Generation ([CNG](/workflow/continuous-native-generation/)), then you'll need to add the following to your **Info.plist** file:
 
 ```xml ios/project-name/Supporting/Info.plist
 <key>UIBackgroundModes</key>
-<array>
-  <string>processing</string>
-</array>
-<key>BGTaskSchedulerPermittedIdentifiers</key>
-<array>
-  <string>com.expo.modules.backgroundtask.processing</string>
-</array>
+  <array>
+    <string>processing</string>
+  </array>
+</key>
 ```
 
 </Collapsible>
@@ -216,7 +210,7 @@ function App() {
 
 ## Inspecting background tasks&ensp;<PlatformTags platforms={['android']} />
 
-To troubleshoot or debug issues with background tasks on Android, use the `adb` tool included with the Android SDK to inspect scheduled tasks:
+To troubleshoot or debug issues with background tasks on Android, use the `adb` tool included with the Android SDK to inspect scheduled tasks and replace `<package-name>` with your app's [Android package name](/versions/latest/config/app/#package) in app config:
 
 <Terminal
   cmd={['$ adb shell dumpsys jobscheduler | grep -A 40 -m 1 -E "JOB #.* <package-name>"']}

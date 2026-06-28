@@ -1,7 +1,7 @@
 ---
 title: BuildProperties
 description: A config plugin that allows customizing native build properties during prebuild.
-sourceCodeUrl: 'https://github.com/expo/expo/tree/main/packages/expo-build-properties'
+sourceCodeUrl: 'https://github.com/expo/expo/tree/sdk-54/packages/expo-build-properties'
 packageName: 'expo-build-properties'
 platforms: ['android', 'ios', 'tvos']
 ---
@@ -37,12 +37,12 @@ of your **android/gradle.properties** and **ios/Podfile.properties.json** direct
         "expo-build-properties",
         {
           "android": {
-            "compileSdkVersion": {{compileSdkVersion}},
-            "targetSdkVersion": {{targetSdkVersion}},
-            "buildToolsVersion": "{{buildToolsVersion}}"
+            "compileSdkVersion": 35,
+            "targetSdkVersion": 35,
+            "buildToolsVersion": "35.0.0"
           },
           "ios": {
-            "deploymentTarget": "{{iosDeploymentTarget}}"
+            "deploymentTarget": "15.1"
           }
         }
       ]
@@ -63,12 +63,12 @@ export default {
         'expo-build-properties',
         {
           android: {
-            compileSdkVersion: {{compileSdkVersion}},
-            targetSdkVersion: {{targetSdkVersion}},
-            buildToolsVersion: '{{buildToolsVersion}}',
+            compileSdkVersion: 35,
+            targetSdkVersion: 35,
+            buildToolsVersion: '35.0.0',
           },
           ios: {
-            deploymentTarget: '{{iosDeploymentTarget}}',
+            deploymentTarget: '15.1',
           },
         },
       ],

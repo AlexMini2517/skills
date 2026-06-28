@@ -1,7 +1,7 @@
 ---
 title: Expo
 description: Set of common methods and types for Expo and related packages.
-sourceCodeUrl: 'https://github.com/expo/expo/tree/main/packages/expo'
+sourceCodeUrl: 'https://github.com/expo/expo/tree/sdk-54/packages/expo'
 packageName: 'expo'
 iconUrl: '/static/images/packages/expo.png'
 platforms: ['android', 'ios', 'tvos', 'web', 'expo-go']
@@ -124,20 +124,6 @@ console.log(new URL('http://🥓').toString());
 // - Android, iOS: http://🥓/
 ```
 
-### `structuredClone`
-
-`structuredClone` is a built-in function that allows you to create a deep copy of a value, including complex objects like `Map`, `Set`, and `ArrayBuffer`. It is available on all platforms.
-
-```ts
-const original = { name: 'Expo', date: new Date() };
-const clone = structuredClone(original);
-console.log(clone); // { name: 'Expo', date: Date }
-```
-
-The `transfer` option for `ArrayBuffer` and `TypedArray`s is not implemented.
-
-Remove any custom polyfills for `structuredClone` to prevent bloat. Refer to the standard documentation for more information on the [structured clone algorithm](https://developer.mozilla.org/en-US/docs/Web/API/Window/structuredClone).
-
 <APISection packageName="expo" />
 
 ## Common questions
@@ -171,7 +157,7 @@ Update the iOS **ios/your-project/AppDelegate.(m|mm|swift)** file to use the **m
 
 **For projects that do not use [Expo Router](/router/introduction/)**, you can set the `"main"` in **package.json** to any file within your project. If you do this, then you need to use `registerRootComponent`. The `export default` will not make this component the root for the app if you are using a custom entry file.
 
-For example, let's say you want to make **src/main.jsx** the entry file for your app &mdash; maybe you don't like having JavaScript files in the project root. First, set this in **package.json**:
+For example, let's say you want to make **src/main.jsx** the entry file for your app — maybe you don't like having JavaScript files in the project root. First, set this in **package.json**:
 
 ```json package.json
 {
