@@ -1,100 +1,86 @@
 ---
 name: expo-sdk-docs
-description: "Offline Expo SDK package reference from local packages/*.mdx docs. Use when working in an Expo project (app.json, app.config.*, eas.json, Expo package dependencies), when the user asks about Expo SDK APIs/packages such as expo-router, expo-camera, expo-notifications, @expo/ui, config plugins, permissions, or Expo/React Native errors tied to an Expo package. Prefer these local docs before web search; use other skills for general React Native architecture, performance, or non-Expo libraries."
+description: "On-demand Expo SDK package reference. Use when working in an Expo project, or when the user asks about Expo SDK APIs/packages (expo-router, expo-camera, etc.). Determines the SDK version from AGENTS.md in the project root. If missing, repeatedly asks the user until a version is provided. Fetches only the required .mdx/.md docs directly from the Expo GitHub repository."
 ---
 
-## How the local docs are organized
+## SDK Version Resolution
 
-Most docs are single files. Some Expo SDK versions may also contain package folders; the extractor mirrors whatever `.mdx` files GitHub exposes.
+1. Read `AGENTS.md` in the current project root.
+2. Look for an explicit Expo SDK version (e.g., `Expo SDK: 57`, `SDK 57`, `expo: ~57.0.0`).
+3. Normalize the version to the exact GitHub folder format (e.g., `v57.0.0`, `v56.0.0`, `v55.0.0`, `v54.0.0`, `unversioned`).  
+   *Note*: `latest` does not exist as a folder on GitHub; map it to the most recent stable version (e.g., `v57.0.0`) or ask the user to clarify the exact version number.
+4. **If `AGENTS.md` does not exist or the SDK version is missing/ambiguous**, ask the user:
+   > "Quale Expo SDK sta usando questo progetto? (es. 57, 56, unversioned)"
+5. **CRITICAL**: If the user does not answer or refuses to provide the version, **do not proceed**. Keep asking for the version until the user provides it. Do not guess, do not use fallbacks, and do not download any docs without knowing the exact version.
 
+## Docs Retrieval Workflow
+
+Once the exact version (e.g., `v57.0.0`) is known:
+1. Fetch the top-level index of available packages for that version using the GitHub API:
+```http
+https://api.github.com/repos/expo/expo/contents/docs/pages/versions/{version}/sdk?ref=main
 ```
-packages/<slug>.mdx
-packages/<slug>/index.mdx
-packages/<slug>/<topic>.mdx
-packages/<slug>/<topic>/<nested-topic>.mdx
+*Example for SDK 57:*
+```http
+https://api.github.com/repos/expo/expo/contents/docs/pages/versions/v57.0.0/sdk?ref=main
 ```
+2. Identify the relevant package slug from the index using the slug normalization rules below.
+3. Fetch **only** the specific `.mdx` or `.md` file needed for the user's request directly from raw GitHub:
+   ```http
+   https://raw.githubusercontent.com/expo/expo/main/docs/pages/versions/{version}/sdk/{slug}.mdx
+   ```
+   *Example:*
+   ```http
+   https://raw.githubusercontent.com/expo/expo/main/docs/pages/versions/v57.0.0/sdk/camera.mdx
+   ```
+4. If the package has a folder instead of a single file, fetch the folder index first, then fetch only the required nested files (e.g., `index.mdx`).
+5. Do not download the entire `sdk` docs tree. Fetch only the smallest possible set of docs needed for the current question.
 
-All paths are relative to this skill's directory.
+## Package Slug Normalization
 
-## Lookup workflow
+When the user mentions a package name, normalize it to find the file in the GitHub index:
+- Strip prefixes: `expo-`, `@expo/`, `react-native-`, `@react-native-community/`, `@shopify/`
+- Convert spaces and underscores to hyphens
+- ⚠️ Watch out — these slugs drop the hyphen: `secure-store` → `securestore`, `image-picker` → `imagepicker`, `image-manipulator` → `imagemanipulator`, `file-system` → `filesystem`, `web-browser` → `webbrowser`
+- These rename entirely: `av` → `audio`, `blur` → `blur-view`
 
-When the user asks something related to Expo:
-
-1. **Identify the matching package slug(s)** — match the user's words to the corresponding package in the `packages/` directory. If the request spans multiple packages (e.g. "pick an image and upload it"), identify all relevant slugs.
-2. **Read the package doc:** Start by checking `packages/<slug>.mdx` (or `packages/<slug>/index.mdx`). Note that some files are quite large, so if a file is large, read the first ~200 lines to get the overview and API summary, then jump to the specific sections relevant to the user's question.
-3. **Read sub-pages if needed** — some packages have nested docs listed above. Only read sub-pages when the user's question specifically requires that level of detail.
-4. **General topics** — For topics like `app.json`, `eas.json`, Metro bundler configuration, etc., search `packages/` with `rg` before relying on general knowledge.
-
-For anything tied to a specific package (notifications, camera, router, etc.), the `packages/` files are the primary source.
-
-## Decision trees for common scenarios
+## Decision Trees for Common Scenarios
 
 When the user's request could map to multiple packages, use these trees to pick the right one(s):
+- **"Save data locally":**
+  - Structured/queryable data → `sqlite`
+  - Simple key-value pairs → `async-storage`
+  - Sensitive data (tokens, passwords) → `securestore`
+  - Binary files (images, PDFs) → `filesystem`
+- **"Show an image":**
+  - Display a static/network image → `image`
+  - Pick from photo gallery → `imagepicker` (then display with `image`)
+  - Crop, resize, or rotate → `imagemanipulator`
+- **"Play media":**
+  - Audio playback/recording → `audio`
+  - Video playback → `video`
+  - Access saved photos/videos → `media-library`
+- **"Authenticate the user":**
+  - Biometric → `local-authentication`
+  - Apple Sign-In → `apple-authentication`
+  - OAuth/OpenID → `auth-session`
+- **"Open something external":**
+  - Open URL in system browser → `linking`
+  - Open URL in in-app browser → `webbrowser`
+- **"Background work":**
+  - Background fetch → `background-task`
+  - Register tasks → `task-manager`
 
-**"Save data locally":**
-- Structured/queryable data → `sqlite`
-- Simple key-value pairs → `async-storage`
-- Sensitive data (tokens, passwords, API keys) → `securestore`
-- Binary files (images, downloads, PDFs) → `filesystem`
+## How to Use the Docs in Practice
 
-**"Show an image":**
-- Display a static/network image → `image`
-- Pick from photo gallery → `imagepicker` (then display with `image`)
-- Crop, resize, or rotate → `imagemanipulator`
-- Generate thumbnail from video → `video-thumbnails`
+Use the fetched docs to:
+- Write correct code (check method signatures, required props, import paths).
+- Fix bugs (look up the correct API usage).
+- Choose the right API when multiple approaches exist.
+- Get config right (plugin configs, `app.json` fields, permissions).
 
-**"Play media":**
-- Audio playback/recording → `audio`
-- Video playback → `video`
-- Access saved photos/videos → `media-library`
+When referencing information, don't just dump the docs. Use them to inform your code changes naturally.
 
-**"Authenticate the user":**
-- Biometric (Face ID, fingerprint) → `local-authentication`
-- Apple Sign-In → `apple-authentication`
-- OAuth/OpenID (Google, GitHub, etc.) → `auth-session`
-
-**"Open something external":**
-- Open a URL in the system browser → `linking`
-- Open a URL in an in-app browser → `webbrowser`
-- Open Android system settings → `intent-launcher`
-
-**"Background work":**
-- Background fetch/execution → `background-task`
-- Register/manage background tasks → `task-manager` (usually paired with `background-task`)
-
-## How to use the docs in practice
-
-You're not a documentation chatbot — you're a coding assistant. The user is typically modifying files in their Expo app and wants you to help. Use the local docs to:
-
-- **Write correct code** — check method signatures, required props, import paths before writing code
-- **Fix bugs** — if the user has an error with an Expo API, look up the correct usage
-- **Choose the right API** — when multiple approaches exist, the docs show the recommended one
-- **Get config right** — plugin configs, app.json fields, permissions setup
-
-When referencing information from the docs, don't just dump the docs at the user. Use them to inform your code changes and explanations naturally. If a specific detail is important (e.g. a required permission, a platform limitation), mention it inline.
-
-## Package slug normalization
-
-When the user mentions a package name, normalize it to find the file:
-
-1. Strip prefixes: `expo-`, `@expo/`, `react-native-`, `@react-native-community/`, `@shopify/`
-2. Convert spaces and underscores to hyphens
-
-> **⚠️ Watch out — these slugs drop the hyphen:**
-> `secure-store` → `securestore` · `image-picker` → `imagepicker` · `image-manipulator` → `imagemanipulator` · `file-system` → `filesystem` · `web-browser` → `webbrowser`
->
-> **These rename entirely:**
-> `av` → `audio` · `blur` → `blur-view`
-
-3. Verify the slug exists in the `packages/` directory before trying to read the file.
-
-## If a package isn't found
-
-If the user asks about a package that doesn't have a local docs file:
-- Check the `packages/` directory for any close matches (e.g., related terms).
-- For third-party packages not in the Expo ecosystem, say so — don't pretend the local docs cover them.
-- `packages/third-party-overview.mdx` has a summary of commonly used community packages.
-
-## Coexistence with other skills
-
-This skill focuses on **Expo SDK API reference and usage**. If the user's question is about general React Native performance patterns, animation best practices, or architectural decisions not specific to an Expo API, another React Native or frontend skill may be more appropriate. But if the question involves a specific Expo package or Expo-specific feature, this skill takes priority.
+## If a Package Isn't Found
+- Check the fetched index for close matches.
+- For third-party packages not in the Expo ecosystem, say so explicitly. Do not pretend the Expo docs cover them.
